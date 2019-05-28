@@ -10,6 +10,8 @@ import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
 import 'dart:convert' as convert;
 import 'package:side_header_list_view/side_header_list_view.dart';
 import 'package:intl/intl.dart';
+import 'package:shifting_tabbar/shifting_tabbar.dart';
+
 
 
 import 'dart:ui' show Color;
@@ -120,10 +122,11 @@ class _HomeState extends State<Home> {
     List<Widget> cardChildren = new List<Widget>();
     List<Widget> hostCards = _djCards(show.hosts, show.isCurrent);
     cardChildren.add(ListTile(
+      
         title: Text(
           showTitle,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         subtitle: Text(showDesc)));
     cardChildren.addAll(hostCards);
@@ -138,20 +141,16 @@ class _HomeState extends State<Home> {
   Image getSongImage(song){
     if (song.albumCover != null){
       return Image.network(song.albumCover,
-          width: MediaQuery
-          .of(context)
-          .size
-          .width-5,
-    fit: BoxFit.fill,
-    height: 150);
+          width: 50,
+    fit: BoxFit.contain,
+    height: 50);
     }
     else{
       return Image.asset("album.png",
-          width: MediaQuery
-              .of(context)
-              .size
-              .width-5,
-          height: 150,
+          width: 50,
+          height: 50,
+              fit: BoxFit.contain,
+
           );
     }
   }
@@ -169,10 +168,7 @@ class _HomeState extends State<Home> {
     return Builder(
       builder: (BuildContext context) {
         return Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
+            width: 400,
             margin: EdgeInsets.symmetric(horizontal: 5.0),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -183,18 +179,17 @@ class _HomeState extends State<Home> {
               initialData: Column(
                 children:  [
                   Image.asset("album.png",
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width-5,
-                    height: 150,
+                    width: 300,
+                    height: 300,
+                        fit: BoxFit.contain,
+
                   ),
                   Text(song.songTitle, style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 25),
+                      fontWeight: FontWeight.bold, fontSize: 20),
                       overflow: TextOverflow.ellipsis),
                   Text("Artist: ${song.artist}", overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 15)),
+                          fontWeight: FontWeight.bold, fontSize: 10)),
                   Text("Played By: ${song.playedBy}", overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 15)),
@@ -244,14 +239,14 @@ class _HomeState extends State<Home> {
                     songChildren =  [
                       getSongImage(song),
                       Text(song.songTitle, style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 25),
+                          fontWeight: FontWeight.bold, fontSize: 17),
                           overflow: TextOverflow.ellipsis),
-                      Text("Artist: ${song.artist}", overflow: TextOverflow.ellipsis,
+                    Row(children: <Widget>[  Text(song.artist, overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
-                      Text("Played By: ${song.playedBy}", overflow: TextOverflow.ellipsis,
+                              fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text("   " +song.playedBy, overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
+                               fontSize: 15, color: Colors.grey[400])),],),
                       topButtonRow
                     ];
                     break;
@@ -260,11 +255,10 @@ class _HomeState extends State<Home> {
                     // Loading card
                     songChildren = [
                       Image.asset("album.png",
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width-5,
-                        height: 150,
+                        width: 30,
+                        height: 30,
+                            fit: BoxFit.contain,
+
                       ),
                       Text(song.songTitle, style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 25),
@@ -278,8 +272,10 @@ class _HomeState extends State<Home> {
                     ];
                     break;
                 }
-                return Column(
-                  children: songChildren
+                return ListTile(
+                  leading: songChildren[0],
+                  title: songChildren[1],
+                  subtitle: songChildren[2],
                 );
               }
             )
@@ -307,24 +303,22 @@ class _HomeState extends State<Home> {
       }
     });
     return
-      SingleChildScrollView(
+      Container(
         child:
           Column(
               children: [
                 Card(
+                  margin: EdgeInsets.all(0.0),
+                  color: Colors.grey[300],
                     child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: nowShowWidget
                     ),
                 ),
-                Text("Songs", textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)
-                ),
-                CarouselSlider(
-                  height: 300.0,
-                  items: _songCards(data.songs),
-                  enableInfiniteScroll: false,
-                )
+             
+               Flexible(child: 
+                Container(
+                child: ListView(children:  _songCards(data.songs),)),)
               ]
           )
       );
@@ -426,7 +420,7 @@ class _HomeState extends State<Home> {
 
                 return SideHeaderListView(
                   itemCount: snapshot.data.length,
-                  itemExtend: 100.0,
+                  itemExtend: 75.0,
                   headerBuilder: (BuildContext context, int index){
                     DateTime timeRepr = snapshot.data[index].startTime;
                     DateFormat formatter = new DateFormat.E();
@@ -446,6 +440,7 @@ class _HomeState extends State<Home> {
                     return SizedBox(width: 150,child:
                     Card(child:
                     ListTile(
+                      // dense: true,
                         title: Text(
                           eventRepr.description.replaceAll("\\", ""),
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -653,29 +648,31 @@ class _HomeState extends State<Home> {
               title: 'KRLX',
               home: DefaultTabController(length: 3,
                   child: Scaffold(
-                      appBar: AppBar(
-                          title: Image.asset("KRLXTitleBar.png"),
-                          actions: appBarActions,
-                          bottom: TabBar(tabs:[
-                            Tab(icon: Icon(Icons.radio), text: "Now"),
-                            Tab(icon: Icon(Icons.calendar_today), text: "Schedule"),
+                      // appBar: AppBar(
+                      //     // title: Image.asset("KRLXTitleBar.png"),
+                      //     actions: appBarActions,
+                      // ),
+                      appBar: ShiftingTabBar(
+                        brightness: Brightness.light,
+                        color: Colors.grey[300],
+                        tabs:[
+                            ShiftingTab(icon: Icon(Icons.radio), text: "LIVE @ KRLX"),
+                            ShiftingTab(icon: Icon(Icons.calendar_today), text: "Schedule"),
                             //Tab(icon: Icon(Icons.chat_bubble), text: "Chat"),
-                            Tab(icon: Icon(Icons.home), text: "KRLX")
+                            ShiftingTab(icon: Icon(Icons.home), text: "KRLX")
                           ]
-                          )
-                      ),
+                          ),
                       body: TabBarView(
                           children: [
                             body,
                             this.schedulePage(),
-                            //this.chatPage(useChatURL),
                             this.krlxHomePage()
                           ]
                       ),
                       floatingActionButton: this.mediaButton()
                   )
               ),
-              theme: variables.theme);
+             );
         }
         else{
           return MaterialApp(
